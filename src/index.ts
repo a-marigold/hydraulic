@@ -1,1 +1,1 @@
-export { addBench, runBenches } from './bench';
+export { addBench, getMarkdown, printout } from './bench';

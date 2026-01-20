@@ -48,7 +48,7 @@ export const addBench = (
  *
  *
  *
- *
+ * #### outputs the results of benchmarks to stdout
  * @param benchmarks `Map` with benchmarks
  *
  * @example
@@ -79,6 +79,13 @@ export const printout = (benchmarks: Benchmarks): void => {
     }
 };
 
+/**
+ * #### generates markdown from `benchmarks`
+ *
+ * @param benchmarks `Map` with benchmarks
+ *
+ * @returns generated markdown from `benchmarks` as string
+ */
 export const getMarkdown = (benchmarks: Benchmarks): string => {
     let markdown = '';
 
