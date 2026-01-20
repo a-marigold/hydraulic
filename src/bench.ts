@@ -4,8 +4,6 @@ import { RESULT_GAP } from './constants';
 
 import type { BenchmarkResult, Benchmark, Benchmarks } from './types';
 
-const _benchmarks: Benchmarks = new Map();
-
 /**
  * #### Appends benchmark to the list of benchmarks.
  *
@@ -36,12 +34,33 @@ const _benchmarks: Benchmarks = new Map();
  * }
  * ```
  */
-export const addBench = (name: string, benchmark: Benchmark): void => {
-    _benchmarks.set(name, benchmark);
+export const addBench = (
+    name: string,
+    benchmark: Benchmark,
+    benchmarks: Benchmarks,
+): void => {
+    benchmarks.set(name, benchmark);
 };
 
-export const runBenches = (): void => {
-    for (const benchmark of _benchmarks) {
+/**
+ *
+ *
+ *
+ *
+ * @param benchmarks `Map` with benchmarks
+ *
+ * @example
+ *
+ * ```typescript
+ * const exampleBenchCallback: Benchmark = () => [];
+ * const benchmarks: Benchmarks = new Map(['My Bench', exampleBenchCallback]);
+ *
+ *
+ * runBenches(benchmarks);
+ * ```
+ */
+export const runBenches = (benchmarks: Benchmarks): void => {
+    for (const benchmark of benchmarks) {
         stdout.write(benchmark[0] + '\n');
 
         const resultList = benchmark[1]();
@@ -49,6 +68,7 @@ export const runBenches = (): void => {
         const resultLength = resultList.length;
 
         let resultIndex = 0;
+
         while (resultIndex < resultLength) {
             const result = resultList[resultIndex] as BenchmarkResult;
 
