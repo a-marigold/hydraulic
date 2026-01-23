@@ -3,6 +3,10 @@
     "module": "index.ts",
     "type": "module",
     "private": true,
+    "scripts": {
+        "lint": "bunx biome check",
+        "build": "bun build ./src/index.ts --minify --outdir=./dist --target=bun && tsc"
+    },
     "devDependencies": {
         "@biomejs/biome": "^2.3.11",
         "@types/bun": "latest"

@@ -63,18 +63,19 @@ export const addBench = (
  */
 export const printout = (benchmarks: Benchmarks): void => {
     for (const benchmark of benchmarks) {
-        stdout.write(benchmark[0] + ':\n');
+        stdout.write('\x1b[32;1m' + benchmark[0] + ':\x1b[0m\n');
 
-        const resultList = benchmark[1]();
-        const resultLength = resultList.length;
+        const result = benchmark[1]();
 
-        let resultIndex = 0;
-
-        while (resultIndex < resultLength) {
-            const result = resultList[resultIndex] as BenchmarkResult;
-
-            stdout.write(PRINT_GAP + result.name + ': ' + result.value + '\n');
-            ++resultIndex;
+        for (const name in result) {
+            stdout.write(
+                PRINT_GAP +
+                    name +
+                    ': ' +
+                    '\x1b[36m' +
+                    result[name] +
+                    '\x1b[0m\n',
+            );
         }
     }
 };
@@ -92,24 +93,12 @@ export const getMarkdown = (benchmarks: Benchmarks): string => {
     for (const benchmark of benchmarks) {
         markdown += '- ' + benchmark[0] + ':\n';
 
-        const resultList = benchmark[1]();
-        const resultLength = resultList.length;
+        const result = benchmark[1]();
 
-        let resultIndex = 0;
-        while (resultIndex < resultLength) {
-            const result = resultList[resultIndex] as BenchmarkResult;
-
-            markdown +=
-                MARKDOWN_GAP + '- ' + result.name + ': ' + result.value + '\n';
-
-            ++resultIndex;
+        for (const name in result) {
+            markdown += MARKDOWN_GAP + '- ' + name + ': ' + result[name] + '\n';
         }
     }
 
     return markdown;
 };
-
-const benches: Benchmarks = new Map();
-addBench('bench', () => [{ name: 'a', value: 'b' }], benches);
-
-stdout.write(getMarkdown(benches));

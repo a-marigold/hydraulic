@@ -24,6 +24,13 @@
         // Some stricter flags (disabled by default)
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "noPropertyAccessFromIndexSignature": false
-    }
+        "noPropertyAccessFromIndexSignature": false,
+
+        "outDir": "./dist",
+        "emitDeclarationOnly": true,
+        "declarationDir": "./dist/types",
+        "declaration": true
+    },
+    "include": ["./src"],
+    "exclude": ["./dist", "./node_modules", "./src/playground"]
 }
