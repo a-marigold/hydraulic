@@ -5,7 +5,7 @@ import type { Benchmarks } from './types';
  *
  * @returns {number} milliseconds timestamp
  */
-export const now = () => performance.now();
+export const getNow = () => performance.now();
 
 /**
  *

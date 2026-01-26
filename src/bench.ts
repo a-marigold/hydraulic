@@ -62,22 +62,25 @@ export const addBench = (
  * ```
  */
 export const printout = (benchmarks: Benchmarks): void => {
+    let output: string = '';
+
     for (const benchmark of benchmarks) {
         stdout.write('\x1b[32;1m' + benchmark[0] + ':\x1b[0m\n');
 
         const result = benchmark[1]();
 
         for (const name in result) {
-            stdout.write(
+            output +=
                 PRINT_GAP +
-                    name +
-                    ': ' +
-                    '\x1b[36m' +
-                    result[name] +
-                    '\x1b[0m\n',
-            );
+                name +
+                ': ' +
+                '\x1b[36m' +
+                result[name] +
+                '\x1b[0m\n';
         }
     }
+
+    stdout.write(output);
 };
 
 /**

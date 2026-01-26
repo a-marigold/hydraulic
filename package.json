@@ -4,7 +4,7 @@
     "type": "module",
     "private": true,
     "scripts": {
-        "lint": "bunx biome check",
+        "lint": "biome check",
         "build": "bun build ./src/index.ts --minify --outdir=./dist --target=bun && tsc"
     },
     "devDependencies": {

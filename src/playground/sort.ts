@@ -1,6 +1,6 @@
 import { addBench, printout } from '../bench';
 import { BenchmarkResult } from '../types';
-import { now, initBenches, warmup } from '../utils';
+import { getNow, initBenches, warmup } from '../utils';
 
 const bubbleSort = (array: number[]): number[] => {
     const arrayLength = array.length;
@@ -94,7 +94,7 @@ const hoarSort = (
     }
 };
 
-const bubbleVsQuick = (): BenchmarkResult[] => {
+const bubbleVsQuick = (): BenchmarkResult => {
     const array = [
         3, 2, 6, 10, 7, 16, 17, 19, 20, 21, 3, 2, 6, 10, 7, 16, 17, 19, 20, 21,
         3, 2, 6, 10, 7, 16, 17, 19, 20, 21,
@@ -102,20 +102,20 @@ const bubbleVsQuick = (): BenchmarkResult[] => {
 
     warmup();
 
-    const b1 = now();
+    const b1 = getNow();
     bubbleSort(array);
-    const b2 = now();
+    const b2 = getNow();
 
     warmup();
 
-    const q1 = now();
+    const q1 = getNow();
     quickSort(array);
-    const q2 = now();
+    const q2 = getNow();
 
-    const result: BenchmarkResult[] = [
-        { name: 'bubble', value: b2 - b1 + 'ms' },
-        { name: 'quick', value: q2 - q1 + 'ms' },
-    ];
+    const result: BenchmarkResult = {
+        bubble: b2 - b1 + 'ms',
+        quick: q2 - q1 + 'ms',
+    };
 
     return result;
 };

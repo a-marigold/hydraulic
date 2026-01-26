@@ -1,10 +1,10 @@
 import { addBench, printout } from '../bench';
-import { now, initBenches } from '..';
-import type { Benchmarks, BenchmarkResult } from '..';
+import { getNow, initBenches, warmup } from '..';
+import type { BenchmarkResult } from '..';
 
 const ITERATIONS = 1_000_000;
 
-const spreadVsConcat = () => {
+const spreadVsConcat = (): BenchmarkResult => {
     const array = [
         1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6,
         1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6,
@@ -18,29 +18,79 @@ const spreadVsConcat = () => {
         5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4,
         5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6,
     ];
-    const s1 = now();
+    const s1 = getNow();
     for (let i = 0; i < ITERATIONS; ++i) {
         [...array, element, ...array2];
     }
-    const s2 = now();
+    const s2 = getNow();
 
-    const c1 = now();
+    const c1 = getNow();
 
     for (let i = 0; i < ITERATIONS; ++i) {
         array.concat(element, array2);
     }
 
-    const c2 = now();
+    const c2 = getNow();
 
-    const result: BenchmarkResult[] = [
-        { name: 'spread', value: s2 - s1 + 'ms' },
-        { name: 'concat', value: c2 - c1 + 'ms' },
-    ];
-
-    return result;
+    return { spread: s2 - s1 + 'ms', concat: c2 - c1 + 'ms' };
 };
 
+const rightShiftVsMathFloor = (): BenchmarkResult => {
+    warmup();
+
+    const mf1 = getNow();
+
+    for (let i = 0; i < ITERATIONS; i++) {
+        Math.floor((i + 100) / 2);
+    }
+    const mf2 = getNow();
+
+    warmup();
+
+    const rs1 = getNow();
+    for (let i = 0; i < ITERATIONS; i++) {
+        (i + 100) >> 1;
+    }
+
+    const rs2 = getNow();
+
+    return {
+        'right shift': rs2 - rs1 + 'ms',
+
+        'math floor': mf2 - mf1 + 'ms',
+    };
+};
+
+const preIncVsPostInc = (): BenchmarkResult => {
+    warmup();
+
+    let megaNumber1 = 0;
+
+    const pre1 = getNow();
+    for (let i = 0; i < 1_000_000; ++i) {
+        ++megaNumber1;
+    }
+    const pre2 = getNow();
+
+    warmup();
+
+    let megaNumber2 = 0;
+
+    const post1 = getNow();
+    for (let i = 0; i < 1_000_000; i++) {
+        megaNumber2++;
+    }
+    const post2 = getNow();
+
+    return {
+        'pre increment': pre2 - pre1 + 'ms',
+        'post increment': post2 - post1 + 'ms',
+    };
+};
 const benchmarks = initBenches();
 
 addBench('spread vs concat', spreadVsConcat, benchmarks);
+addBench('`>>` vs Math.floor', rightShiftVsMathFloor, benchmarks);
+addBench('pre increment vs post increment', preIncVsPostInc, benchmarks);
+
 printout(benchmarks);

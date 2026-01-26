@@ -2,7 +2,7 @@ import {
     addBench,
     BenchmarkResult,
     initBenches,
-    now,
+    getNow,
     printout,
     warmup,
 } from '..';
@@ -115,6 +115,7 @@ class Trie {
             for (const char in currentNode.node.children) {
                 stack[stack.length] = {
                     node: currentNode.node.children[char],
+
                     prefix: currentNode.prefix + char,
                 };
             }
@@ -124,38 +125,137 @@ class Trie {
     }
 }
 
-const trieVsBinarySearch = (): BenchmarkResult => {
-    const i1 = now();
-    for (let i = 0; i < 1_000_000; i++) {
-        trie.insert(Math.floor(Math.random() * 1_000).toString() + i);
+class BinarySearchArray<T = unknown> {
+    array: T[];
+
+    #compareFn: (value: T) => string | number;
+
+    #sortCompareFn: (a: T, b: T) => number;
+
+    constructor(
+        compareFn: (value: T) => string | number,
+
+        entries: { array?: T[]; sortCompareFn: (a: T, b: T) => number },
+    ) {
+        this.array = entries.array?.sort(entries.sortCompareFn) ?? [];
+
+        this.#compareFn = compareFn;
+
+        this.#sortCompareFn = entries.sortCompareFn;
     }
-    const i2 = now();
 
-    warmup();
+    insert(value: T) {
+        const lowerBound = this.findLowerBound(value);
 
-    const rs1 = now();
+        this.array = this.array.sort(this.#sortCompareFn);
+    }
+
+    indexOf(value: T): number {
+        const comparedValue = this.#compareFn(value);
+
+        let leftIndex = 0;
+        let rightIndex = this.array.length - 1;
+
+        while (leftIndex <= rightIndex) {
+            const middleIndex = (leftIndex + rightIndex) >> 1;
+            const comparedMiddle = this.#compareFn(this.array[middleIndex]);
+
+            if (comparedMiddle === comparedValue) {
+                return middleIndex;
+            } else if (comparedMiddle < comparedValue) {
+                leftIndex = middleIndex + 1;
+            } else {
+                rightIndex = middleIndex - 1;
+            }
+        }
+
+        return -1;
+    }
+
+    findLowerBound(value: T): number {
+        const comparedValue = this.#compareFn(value);
+
+        let leftIndex = 0;
+        let rightIndex = this.array.length;
+
+        while (leftIndex < rightIndex) {
+            const middleIndex = (leftIndex + rightIndex) >> 1;
+
+            const comparedMiddle = this.#compareFn(this.array[middleIndex]);
+
+            if (comparedMiddle < comparedValue) {
+                leftIndex = middleIndex + 1;
+            } else {
+                rightIndex = middleIndex;
+            }
+        }
+
+        return leftIndex;
+    }
+}
+
+Bun.stdout.write(
+    String(
+        new BinarySearchArray<string>((value) => value, {
+            array: [
+                'bca',
+                'abc',
+                'str',
+                'boadfd',
+                'adbr',
+                'asdoc',
+                'cat',
+                'cats',
+                'car',
+            ],
+            sortCompareFn: (a, b) => a.localeCompare(b),
+        }).indexOf('abc'),
+    ) + '\n',
+);
+
+const trieVsBinarySearch = (): BenchmarkResult => {
+    const trie = new Trie();
+
+    const trieIns1 = getNow();
+    for (let i = 0; i < 1_000_000; i++) {
+        trie.insert(i.toString());
+    }
+    const trieIns2 = getNow();
+
+    const trieRec1 = getNow();
     const rsFound = trie.search('10');
-    const rs2 = now();
+    const trieRec2 = getNow();
 
-    warmup();
+    const trieIter1 = getNow();
+    const isFound = trie.recursiveSearch('10');
+    const trieIter2 = getNow();
 
-    const is1 = now();
-    const isFound = trie.search('10');
-    const is2 = now();
+    const bsa = new BinarySearchArray<string>((value) => value, {
+        sortCompareFn: (a, b) => a.localeCompare(b),
+    });
+
+    const bsaIns1 = getNow();
+    for (let i = 0; i < 1_000_000; i++) {
+        bsa.insert(i.toString());
+    }
+
+    const bsaIns2 = getNow();
+
+    const bsaSearch1 = getNow();
+    bsa.indexOf('600000');
+    const bsaSearch2 = getNow();
 
     return {
-        insertion: i2 - i1 + 'ms',
-        'iterative search': is2 - is1 + 'ms',
-        'recursive search': rs2 - rs1 + 'ms',
-        // isFound: isFound.join(', '),
-        // rsFound: rsFound.join(', '),
+        'trie insertion': trieIns2 - trieIns1 + 'ms',
+        'trie iterative search': trieIter2 - trieIter1 + 'ms',
+        'trie recursive search': trieRec2 - trieRec1 + 'ms\n',
+        'binary search array insertion': bsaIns2 - bsaIns1 + 'ms',
+        'binary search array search': bsaSearch2 - bsaSearch1 + 'ms',
     };
 };
 
-const trie = new Trie();
-
 const benchmarks = initBenches();
 
-addBench('trie', trieVsBinarySearch, benchmarks);
+addBench('trie vs BSA', trieVsBinarySearch, benchmarks);
 
 printout(benchmarks);
