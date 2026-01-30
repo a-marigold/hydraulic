@@ -1,8 +1,15 @@
-import { stdout } from 'bun';
+import { stdout as bunStdout } from 'bun';
+import { stdout as processStdout } from 'node:process';
 
 import { PRINT_GAP } from './constants';
 
 import type { Benchmark, Benchmarks, UnknownBenchmarkDetails } from './types';
+
+const writeToStdout = (bunStdout?.write as unknown)
+    ? (data: string) => bunStdout.write(data)
+    : (processStdout?.write as unknown)
+      ? (data: string) => processStdout.write(data)
+      : console.log;
 
 /**
  * #### Appends benchmark to the list of benchmarks.
@@ -39,6 +46,7 @@ import type { Benchmark, Benchmarks, UnknownBenchmarkDetails } from './types';
  */
 export const addBench = <DetailsK extends string, DetailsT = never>(
     name: string,
+
     callback: Benchmark<DetailsK, DetailsT>['callback'],
 
     benchmarks: Benchmarks,
@@ -52,12 +60,14 @@ export const addBench = <DetailsK extends string, DetailsT = never>(
  *
  *
  * #### outputs the results of benchmarks to stdout
+ *
  * @param benchmarks `Map` with benchmarks
  *
  * @example
  *
  * ```typescript
  * const exampleBenchCallback: Benchmark = () => [];
+ *
  * const benchmarks: Benchmarks = new Map(['My Bench', exampleBenchCallback]);
  *
  *
@@ -66,6 +76,8 @@ export const addBench = <DetailsK extends string, DetailsT = never>(
  */
 export const printout = (benchmarks: Benchmarks): void => {
     let output: string = '';
+
+    const nestedPrintGap: string = PRINT_GAP + PRINT_GAP;
 
     for (const benchmarkItem of benchmarks) {
         output += '\x1b[32;1m' + benchmarkItem[0] + ':\x1b[0m\n';
@@ -78,36 +90,37 @@ export const printout = (benchmarks: Benchmarks): void => {
         const details = benchmark.details;
 
         if (details) {
-            output += PRINT_GAP + '\x1b[31details:\x1b[0m\n';
-            /**
-             * `detailPrintGap === PRINT_GAP + PRINT_GAP` because details are more nested than default benchmark output
-             */
-            const detailPrintGap = PRINT_GAP + PRINT_GAP;
+            output += PRINT_GAP + '\x1b[35mdetails:\x1b[0m\n';
 
             for (const name in details) {
                 output +=
-                    detailPrintGap +
+                    nestedPrintGap +
                     name +
                     ': \x1b[36m' +
                     JSON.stringify(details[name], null, PRINT_GAP) +
-                    '\x1b[0m';
+                    '\x1b[0m\n';
             }
         }
 
+        output += PRINT_GAP + '\x1b[31mresult:\x1b[0m\n';
+
         for (const name in result) {
             output +=
-                PRINT_GAP + name + ': \x1b[36m' + result[name] + '\x1b[0m\n';
+                nestedPrintGap +
+                name +
+                ': \x1b[36m' +
+                result[name] +
+                '\x1b[0m\n';
         }
     }
-
-    stdout.write(output);
+    writeToStdout(output);
 };
 
 /**
  * #### generates markdown from `benchmarks`
- *
- *
  * @param benchmarks `Map` with benchmarks
+ *
+ *
  *
  *
  *

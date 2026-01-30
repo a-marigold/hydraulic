@@ -5,10 +5,10 @@ const benches = initBenches();
 
 addBench(
     'switch case vs if else with string',
-    () => {
+    (details) => {
         const string: string = 'abcdef';
 
-        const iterations = 1_000_000;
+        const iterations = details.iterations;
 
         warmup();
 
@@ -80,6 +80,8 @@ addBench(
     },
 
     benches,
+
+    { iterations: 1_000_000 },
 );
 
 printout(benches);
