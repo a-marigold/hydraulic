@@ -2,19 +2,19 @@ import { stdout } from 'bun';
 
 import { PRINT_GAP, MARKDOWN_GAP } from './constants';
 
-import type { Benchmark, Benchmarks } from './types';
+import type { Benchmark, Benchmarks, UnknownBenchmark } from './types';
 
 /**
  * #### Appends benchmark to the list of benchmarks.
  *
- *s
+ *
  *
  *
  *
  *
  *
  * @param name - Name of the benchmark
- * @param callback - Benchmark callback that returns `BenchmarkResult`
+ * @param callback - Benchmark callback that returns `BenchmarkResult`w
  *
  * @example
  *
@@ -44,7 +44,7 @@ export const addBench = <DetailsK extends string, DetailsT = never>(
     benchmarks: Benchmarks,
     details?: Benchmark<DetailsK, DetailsT>['details'],
 ): void => {
-    benchmarks.set(name, { callback, details } as Benchmark<string, never>);
+    benchmarks.set(name, { callback, details } as Benchmark<string, unknown>);
 };
 
 /**
@@ -67,19 +67,27 @@ export const addBench = <DetailsK extends string, DetailsT = never>(
 export const printout = (benchmarks: Benchmarks): void => {
     let output: string = '';
 
-    for (const benchmark of benchmarks) {
-        output += '\x1b[32;1m' + benchmark[0] + ':\x1b[0m\n';
+    for (const benchmarkItem of benchmarks) {
+        output += '\x1b[32;1m' + benchmarkItem[0] + ':\x1b[0m\n';
 
-        const result = benchmark[1].callback(benchmark[1].details);
+        const benchmark = benchmarkItem[1];
+
+        const result = benchmark.callback(
+            benchmark.details as UnknownBenchmark,
+        );
+        const details = benchmark.details;
+
+        if (details) {
+            output += '\x1b[31details:\x1b[0m\n';
+            for (const name in details) {
+                output +=
+                    PRINT_GAP + name + ': \x1b[36m' + details[name] + '\x1b[0m';
+            }
+        }
 
         for (const name in result) {
             output +=
-                PRINT_GAP +
-                name +
-                ': ' +
-                '\x1b[36m' +
-                result[name] +
-                '\x1b[0m\n';
+                PRINT_GAP + name + ': \x1b[36m' + result[name] + '\x1b[0m\n';
         }
     }
 
@@ -112,6 +120,3 @@ export const getMarkdown = (benchmarks: Benchmarks): string => {
 
     return markdown;
 };
-
-// TODO: types
-addBench('', (a) => ({ b: a.b }), new Map());
