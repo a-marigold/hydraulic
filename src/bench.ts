@@ -1,8 +1,8 @@
 import { stdout } from 'bun';
 
-import { PRINT_GAP, MARKDOWN_GAP } from './constants';
+import { PRINT_GAP } from './constants';
 
-import type { Benchmark, Benchmarks, UnknownBenchmark } from './types';
+import type { Benchmark, Benchmarks, UnknownBenchmarkDetails } from './types';
 
 /**
  * #### Appends benchmark to the list of benchmarks.
@@ -14,7 +14,7 @@ import type { Benchmark, Benchmarks, UnknownBenchmark } from './types';
  *
  *
  * @param name - Name of the benchmark
- * @param callback - Benchmark callback that returns `BenchmarkResult`w
+ * @param callback - Benchmark callback that returns `BenchmarkResult`
  *
  * @example
  *
@@ -73,15 +73,24 @@ export const printout = (benchmarks: Benchmarks): void => {
         const benchmark = benchmarkItem[1];
 
         const result = benchmark.callback(
-            benchmark.details as UnknownBenchmark,
+            benchmark.details as UnknownBenchmarkDetails,
         );
         const details = benchmark.details;
 
         if (details) {
-            output += '\x1b[31details:\x1b[0m\n';
+            output += PRINT_GAP + '\x1b[31details:\x1b[0m\n';
+            /**
+             * `detailPrintGap === PRINT_GAP + PRINT_GAP` because details are more nested than default benchmark output
+             */
+            const detailPrintGap = PRINT_GAP + PRINT_GAP;
+
             for (const name in details) {
                 output +=
-                    PRINT_GAP + name + ': \x1b[36m' + details[name] + '\x1b[0m';
+                    detailPrintGap +
+                    name +
+                    ': \x1b[36m' +
+                    JSON.stringify(details[name], null, PRINT_GAP) +
+                    '\x1b[0m';
             }
         }
 
@@ -102,19 +111,33 @@ export const printout = (benchmarks: Benchmarks): void => {
  *
  *
  *
+ *
  * @returns generated markdown from `benchmarks` as string
  */
 export const getMarkdown = (benchmarks: Benchmarks): string => {
     let markdown = '';
 
-    for (const benchmark of benchmarks) {
-        markdown += '## ' + benchmark[0] + '\n';
+    for (const benchmarkItem of benchmarks) {
+        markdown += '## ' + benchmarkItem[0] + '\n';
 
-        const result = benchmark[1]();
+        const benchmark = benchmarkItem[1];
+
+        const result = benchmark.callback(
+            benchmark.details as UnknownBenchmarkDetails,
+        );
+
+        const details = benchmark.details;
+
+        if (details) {
+            markdown += '### details:\n';
+
+            for (const name in details) {
+                markdown += '- #### ' + name + ': ' + details[name] + '\n';
+            }
+        }
 
         for (const name in result) {
-            markdown +=
-                MARKDOWN_GAP + '- ### ' + name + ': ' + result[name] + '\n';
+            markdown += '- #### ' + name + ': ' + result[name] + '\n';
         }
     }
 

@@ -13,9 +13,9 @@ export type Benchmark<DetailsK extends string, DetailsT> = {
  *
  *
  *
- * Type of initial `Benchmarks` Map value
+ * Type of `BenchmarkDetails` of initial `Benchmarks` Map
  */
-export type UnknownBenchmark = Benchmark<string, unknown>;
+export type UnknownBenchmarkDetails = BenchmarkDetails<string, unknown>;
 export type Benchmarks = Map<string, Benchmark<string, unknown>>;
 
 export type BenchmarkCallback<DetailsK extends string, DetailsT = never> = [
