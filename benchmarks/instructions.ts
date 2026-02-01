@@ -1,5 +1,5 @@
-import { addBench, printout } from '../bench';
-import { initBenches, getNow, formatMs, warmup } from '../utils';
+import { addBench, printout } from '../src/bench';
+import { initBenches, getNow, formatMs, warmup } from '../src/utils';
 
 const benches = initBenches();
 

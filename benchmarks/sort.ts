@@ -1,6 +1,6 @@
-import { addBench, printout } from '../bench';
-import { BenchmarkResult } from '../types';
-import { getNow, initBenches, warmup } from '../utils';
+import { addBench, printout } from '../src/bench';
+import { BenchmarkResult } from '../src/types';
+import { getNow, initBenches, warmup } from '../src/utils';
 
 const bubbleSort = (array: number[]): number[] => {
     const arrayLength = array.length;

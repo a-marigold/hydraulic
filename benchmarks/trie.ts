@@ -5,7 +5,7 @@ import {
     getNow,
     printout,
     warmup,
-} from '..';
+} from '../src';
 
 type TrieNode = { children: { [key: string]: TrieNode }; isWord: boolean };
 

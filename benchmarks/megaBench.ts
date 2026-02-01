@@ -1,6 +1,6 @@
-import { addBench, printout } from '../bench';
-import { getNow, initBenches, warmup } from '..';
-import type { BenchmarkResult } from '..';
+import { addBench, printout } from '../src/bench';
+import { getNow, initBenches, warmup } from '../src';
+import type { BenchmarkResult } from '../src';
 
 const ITERATIONS = 1_000_000;
 

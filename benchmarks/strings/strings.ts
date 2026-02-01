@@ -1,5 +1,5 @@
-import { addBench, printout } from '../../bench';
-import { getNow, initBenches, formatMs } from '../../utils';
+import { addBench, printout } from '../../src/bench';
+import { getNow, initBenches, formatMs } from '../../src/utils';
 
 import * as benchNamespace from './benchConstants';
 

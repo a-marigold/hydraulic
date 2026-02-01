@@ -9,7 +9,9 @@
         "allowJs": true,
 
         // Bundler mode
+
         "moduleResolution": "bundler",
+
         "allowImportingTsExtensions": true,
         "verbatimModuleSyntax": true,
         "noEmit": true,
@@ -26,11 +28,8 @@
         "noUnusedParameters": true,
         "noPropertyAccessFromIndexSignature": false,
 
-        "outDir": "./dist",
-        "emitDeclarationOnly": true,
-        "declarationDir": "./dist/types",
-        "declaration": true
+        "outDir": "./dist"
     },
-    "include": ["./src"],
-    "exclude": ["./dist", "./node_modules", "./src/playground"]
+    "include": ["./src", "./benchmarks"],
+    "exclude": ["node_modules", "dist"]
 }
