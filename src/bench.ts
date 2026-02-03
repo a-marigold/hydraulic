@@ -146,31 +146,42 @@ export const printout: OutputFunction<void> = (benchmarks, only): void => {
  */
 export const getMarkdown: OutputFunction<string> = (
     benchmarks,
+
     only,
 ): string => {
     let markdown = '';
 
+    let isOnlyMode = false;
+    for (const _onlyName in only) {
+        isOnlyMode = true;
+        break;
+    }
+
     for (const benchmarkItem of benchmarks) {
-        markdown += '## ' + benchmarkItem[0] + '\n';
+        const benchmarkName = benchmarkItem[0];
 
-        const benchmark = benchmarkItem[1];
+        if (!isOnlyMode || (only as OnlyBenchmarks)[benchmarkName]) {
+            markdown += '## ' + benchmarkName + '\n';
 
-        const result = benchmark.callback(
-            benchmark.details as UnknownBenchmarkDetails,
-        );
+            const benchmark = benchmarkItem[1];
 
-        const details = benchmark.details;
+            const result = benchmark.callback(
+                benchmark.details as UnknownBenchmarkDetails,
+            );
 
-        if (details) {
-            markdown += '### details:\n';
+            const details = benchmark.details;
 
-            for (const name in details) {
-                markdown += '- #### ' + name + ': ' + details[name] + '\n';
+            if (details) {
+                markdown += '### details:\n';
+
+                for (const name in details) {
+                    markdown += '- #### ' + name + ': ' + details[name] + '\n';
+                }
             }
-        }
 
-        for (const name in result) {
-            markdown += '- #### ' + name + ': ' + result[name] + '\n';
+            for (const name in result) {
+                markdown += '- #### ' + name + ': ' + result[name] + '\n';
+            }
         }
     }
 
